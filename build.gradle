@@ -25,4 +25,6 @@ task clean(type: Delete) {
 
 ext {
     koin_version = "3.1.2"
+    moxy_version = "2.2.2"
+    timber_version = "5.0.1"
 }
