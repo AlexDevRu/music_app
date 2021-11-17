@@ -1,5 +1,8 @@
 package com.example.learning_android_music_app_kulakov.di
 
+import com.bumptech.glide.Glide
+import com.bumptech.glide.load.engine.DiskCacheStrategy
+import com.bumptech.glide.request.RequestOptions
 import com.example.learning_android_music_app_kulakov.R
 import com.example.learning_android_music_app_kulakov.exoplayer.MusicServiceConnection
 import com.example.learning_android_music_app_kulakov.exoplayer.MusicSource
@@ -34,5 +37,14 @@ val appModule = module {
 
     single {
         MusicSource(androidContext())
+    }
+
+    single {
+        Glide.with(androidContext()).setDefaultRequestOptions(
+            RequestOptions()
+                .placeholder(R.drawable.ic_image)
+                .error(R.drawable.ic_image)
+                .diskCacheStrategy(DiskCacheStrategy.DATA)
+        )
     }
 }

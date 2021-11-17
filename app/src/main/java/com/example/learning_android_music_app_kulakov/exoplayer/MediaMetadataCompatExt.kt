@@ -10,7 +10,8 @@ fun MediaMetadataCompat.toSong(): Song? {
             it.title.toString(),
             it.subtitle.toString(),
             it.mediaUri.toString(),
-            it.iconUri.toString()
+            it.iconUri.toString(),
+            getLong(MediaMetadataCompat.METADATA_KEY_DURATION)
         )
     }
 }

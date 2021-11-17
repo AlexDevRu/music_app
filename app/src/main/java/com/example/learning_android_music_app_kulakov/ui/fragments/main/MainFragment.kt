@@ -4,29 +4,27 @@ import android.Manifest
 import android.os.Bundle
 import android.view.View
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.core.view.isVisible
+import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.DividerItemDecoration
 import com.example.learning_android_music_app_kulakov.databinding.FragmentMainBinding
-import com.example.learning_android_music_app_kulakov.exoplayer.MusicServiceConnection
+import com.example.learning_android_music_app_kulakov.exoplayer.isPlaying
+import com.example.learning_android_music_app_kulakov.exoplayer.toSong
 import com.example.learning_android_music_app_kulakov.models.Song
+import com.example.learning_android_music_app_kulakov.other.Status
 import com.example.learning_android_music_app_kulakov.ui.adapters.MusicAdapter
 import com.example.learning_android_music_app_kulakov.ui.fragments.base.BaseFragment
-import moxy.ktx.moxyPresenter
-import org.koin.android.ext.android.inject
-import timber.log.Timber
+import org.koin.androidx.viewmodel.ext.android.sharedViewModel
 
 
-class MainFragment: BaseFragment<FragmentMainBinding>(FragmentMainBinding::inflate), MainView {
+class MainFragment: BaseFragment<FragmentMainBinding>(FragmentMainBinding::inflate) {
 
-    private val musicServiceConnection by inject<MusicServiceConnection>()
-
-    private val presenter by moxyPresenter {
-        MainPresenter(musicServiceConnection)
-    }
+    private val mainViewModel by sharedViewModel<MainVM>()
 
     private val permissionLauncher = registerForActivityResult(
         ActivityResultContracts.RequestPermission()
     ) {
-        presenter.onPermissionsResult(it)
+        mainViewModel.onPermissionsResult(it)
     }
 
     private lateinit var musicAdapter: MusicAdapter
@@ -35,7 +33,7 @@ class MainFragment: BaseFragment<FragmentMainBinding>(FragmentMainBinding::infla
         super.onViewCreated(view, savedInstanceState)
 
         binding.musicSwipeLayout.setOnRefreshListener {
-            presenter.connectToService()
+            mainViewModel.connectToService()
         }
 
         binding.musicList.addItemDecoration(
@@ -45,30 +43,61 @@ class MainFragment: BaseFragment<FragmentMainBinding>(FragmentMainBinding::infla
             )
         )
 
-        musicAdapter = MusicAdapter {
-            presenter.playOrToggleSong(it)
-        }
+        musicAdapter = MusicAdapter(
+            onPlayClickListener = {
+                mainViewModel.playOrToggleSong(it, true)
+            },
+            onItemClickListener = {
+                mainViewModel.playOrToggleSong(it)
+                val action = MainFragmentDirections.actionMainFragmentToSongFragment()
+                findNavController().navigate(action)
+            }
+        )
 
         binding.musicList.adapter = musicAdapter
-    }
 
-    override fun setLoadingState(isLoading: Boolean) {
-        Timber.w("isLoading $isLoading")
-        binding.progressBar.visibility = if(isLoading) View.VISIBLE else View.GONE
-        if(!isLoading) binding.musicSwipeLayout.isRefreshing = false
-    }
-
-    override fun setData(data: List<Song>) {
-        Timber.w("setData $data")
-        musicAdapter.submitList(data)
-    }
-
-    override fun showError(message: String) {
-        Timber.w("showError $message")
-        showSnackBar(message)
-    }
-
-    override fun requestReadExternalStorage() {
         permissionLauncher.launch(Manifest.permission.READ_EXTERNAL_STORAGE)
+
+        observe()
+    }
+
+    private fun observe() {
+        mainViewModel.mediaItems.observe(viewLifecycleOwner) { result ->
+            when(result.status) {
+                Status.SUCCESS -> {
+                    binding.progressBar.isVisible = false
+                    result.data?.let { songs ->
+                        songs.forEach {
+                            it.isPlaying = it.mediaId == mainViewModel.curPlayingSong.value?.description?.mediaId &&
+                                    mainViewModel.playbackState.value?.isPlaying == true
+                        }
+                        musicAdapter.submitList(songs)
+                    }
+                }
+                Status.ERROR -> {
+                    showSnackBar(result.message.orEmpty())
+                }
+                Status.LOADING -> {
+                    binding.progressBar.isVisible = true
+                }
+            }
+            binding.musicSwipeLayout.isRefreshing = result.status == Status.LOADING
+        }
+
+        mainViewModel.curPlayingSong.observe(viewLifecycleOwner) { metadata ->
+            mainViewModel.mediaItems.value?.data?.forEach {
+                it.isPlaying = it.mediaId == metadata?.description?.mediaId && mainViewModel.playbackState.value?.isPlaying == true
+            }
+            musicAdapter.submitList(mainViewModel.mediaItems.value?.data)
+            musicAdapter.notifyDataSetChanged()
+        }
+
+        mainViewModel.playbackState.observe(viewLifecycleOwner) { playState ->
+            mainViewModel.mediaItems.value?.data?.forEach {
+                it.isPlaying = it.mediaId == mainViewModel.curPlayingSong.value?.description?.mediaId && playState?.isPlaying == true
+            }
+            musicAdapter.submitList(mainViewModel.mediaItems.value?.data)
+            musicAdapter.notifyDataSetChanged()
+        }
     }
 }

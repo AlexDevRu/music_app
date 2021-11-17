@@ -4,29 +4,30 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:padding="16dp"
     tools:context=".ui.MainActivity">
 
     <com.google.android.material.textview.MaterialTextView
         android:id="@+id/tvSongName"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:text="SONG NAME"
+        android:layout_marginStart="16dp"
         android:gravity="center"
+        android:text="SONG NAME"
         android:textSize="24sp"
-        app:layout_constraintBottom_toTopOf="@+id/ivSongImage"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.5"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintStart_toEndOf="@+id/ivSongImage"
+        app:layout_constraintTop_toTopOf="@+id/ivSongImage" />
 
     <ImageView
         android:id="@+id/ivSongImage"
         android:layout_width="230dp"
         android:layout_height="230dp"
-        app:layout_constraintBottom_toTopOf="@+id/guideline2"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.5"
-        app:layout_constraintStart_toStartOf="parent" />
+        android:layout_marginStart="16dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
 
     <com.google.android.material.textview.MaterialTextView
         android:id="@+id/tvCurTime"
@@ -37,16 +38,17 @@
         android:layout_marginStart="16dp"
         android:textSize="14sp"
         app:layout_constraintBottom_toBottomOf="@+id/seekBar"
-        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintStart_toEndOf="@+id/ivSongImage"
         app:layout_constraintTop_toTopOf="@+id/seekBar" />
 
     <SeekBar
         android:id="@+id/seekBar"
         android:layout_width="0dp"
         android:layout_height="18dp"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toStartOf="@+id/tvSongDuration"
         app:layout_constraintStart_toEndOf="@+id/tvCurTime"
-        app:layout_constraintTop_toTopOf="@+id/guideline3" />
+        app:layout_constraintTop_toTopOf="parent" />
 
     <com.google.android.material.textview.MaterialTextView
         android:id="@+id/tvSongDuration"
@@ -68,8 +70,7 @@
         android:background="@drawable/circle_drawable"
         android:src="@drawable/ic_play"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.5"
-        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintStart_toStartOf="@+id/tvCurTime"
         app:layout_constraintTop_toBottomOf="@+id/seekBar" />
 
     <ImageButton
@@ -89,9 +90,9 @@
         android:layout_width="56dp"
         android:layout_height="56dp"
         android:layout_marginStart="16dp"
-        android:src="@drawable/ic_skip"
         android:background="@drawable/circle_drawable"
         android:backgroundTint="@color/purple_500"
+        android:src="@drawable/ic_skip"
         app:layout_constraintBottom_toBottomOf="@+id/ivPlayPauseDetail"
         app:layout_constraintStart_toEndOf="@+id/ivPlayPauseDetail"
         app:layout_constraintTop_toTopOf="@+id/ivPlayPauseDetail" />

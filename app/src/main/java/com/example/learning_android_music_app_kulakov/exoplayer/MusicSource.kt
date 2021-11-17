@@ -17,6 +17,7 @@ import com.google.android.exoplayer2.source.ProgressiveMediaSource
 import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import timber.log.Timber
 
 
 class MusicSource(
@@ -56,14 +57,14 @@ class MusicSource(
                 val sArtworkUri = Uri.parse("content://media/external/audio/albumart")
                 val imageUri = ContentUris.withAppendedId(sArtworkUri, c.getLong(albumIdIndex))
 
-                val uri = c.getString(uriIndex)
+                Timber.d("duration ${c.getLong(durationIndex)}")
 
                 list.add(
                     Song(
                         mediaId = c.getString(idIndex),
                         title = c.getString(nameIndex),
                         subtitle = c.getString(artistIndex),
-                        songUrl = uri.toString(),
+                        songUrl = c.getString(uriIndex),
                         imageUrl = imageUri.toString(),
                         duration = c.getLong(durationIndex)
                     )

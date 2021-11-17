@@ -15,6 +15,7 @@
     </fragment>
     <fragment
         android:id="@+id/songFragment"
+        tools:layout="@layout/fragment_song"
         android:name="com.example.learning_android_music_app_kulakov.ui.fragments.song.SongFragment"
         android:label="SongFragment" />
 </navigation>
