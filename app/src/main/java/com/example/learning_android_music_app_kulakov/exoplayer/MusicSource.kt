@@ -12,9 +12,10 @@ import android.support.v4.media.MediaMetadataCompat.*
 import androidx.core.net.toUri
 import com.example.learning_android_music_app_kulakov.exoplayer.State.*
 import com.example.learning_android_music_app_kulakov.models.Song
+import com.google.android.exoplayer2.MediaItem
 import com.google.android.exoplayer2.source.ConcatenatingMediaSource
 import com.google.android.exoplayer2.source.ProgressiveMediaSource
-import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory
+import com.google.android.exoplayer2.upstream.DefaultDataSource
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import timber.log.Timber
@@ -39,7 +40,6 @@ class MusicSource(
                     MediaStore.Audio.Media.DISPLAY_NAME,
                     MediaStore.Audio.Media.TITLE,
                     MediaStore.Audio.Albums.ALBUM_ID,
-                    MediaStore.Audio.Media.DATA,
                     MediaStore.Audio.Media.DURATION,
                     MediaStore.Audio.Media.ARTIST
                 ),
@@ -50,12 +50,13 @@ class MusicSource(
                 val idIndex = c.getColumnIndex(MediaStore.Audio.Media._ID)
                 val nameIndex = c.getColumnIndex(MediaStore.Audio.Media.TITLE)
                 val artistIndex = c.getColumnIndex(MediaStore.Audio.Media.ARTIST)
-                val uriIndex = c.getColumnIndex(MediaStore.Audio.Media.DATA)
                 val durationIndex = c.getColumnIndex(MediaStore.Audio.Media.DURATION)
                 val albumIdIndex = c.getColumnIndex(MediaStore.Audio.Albums.ALBUM_ID)
 
                 val sArtworkUri = Uri.parse("content://media/external/audio/albumart")
                 val imageUri = ContentUris.withAppendedId(sArtworkUri, c.getLong(albumIdIndex))
+
+                val uriImage = Uri.withAppendedPath(MediaStore.Audio.Media.EXTERNAL_CONTENT_URI, c.getString(idIndex))
 
                 Timber.d("duration ${c.getLong(durationIndex)}")
 
@@ -64,7 +65,7 @@ class MusicSource(
                         mediaId = c.getString(idIndex),
                         title = c.getString(nameIndex),
                         subtitle = c.getString(artistIndex),
-                        songUrl = c.getString(uriIndex),
+                        songUrl = uriImage.toString(),
                         imageUrl = imageUri.toString(),
                         duration = c.getLong(durationIndex)
                     )
@@ -77,7 +78,7 @@ class MusicSource(
         }
 
         songs = allSongs.map { song ->
-            MediaMetadataCompat.Builder()
+            Builder()
                 .putString(METADATA_KEY_ARTIST, song.subtitle)
                 .putString(METADATA_KEY_MEDIA_ID, song.mediaId)
                 .putString(METADATA_KEY_TITLE, song.title)
@@ -93,11 +94,11 @@ class MusicSource(
         state = STATE_INITIALIZED
     }
 
-    fun asMediaSource(dataSourceFactory: DefaultDataSourceFactory): ConcatenatingMediaSource {
+    fun asMediaSource(dataSourceFactory: DefaultDataSource.Factory): ConcatenatingMediaSource {
         val concatenatingMediaSource = ConcatenatingMediaSource()
         songs.forEach { song ->
             val mediaSource = ProgressiveMediaSource.Factory(dataSourceFactory)
-                .createMediaSource(song.getString(METADATA_KEY_MEDIA_URI).toUri())
+                .createMediaSource(MediaItem.fromUri(song.getString(METADATA_KEY_MEDIA_URI)))
             concatenatingMediaSource.addMediaSource(mediaSource)
         }
         return concatenatingMediaSource

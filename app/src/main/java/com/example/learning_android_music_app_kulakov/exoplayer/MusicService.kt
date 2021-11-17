@@ -13,11 +13,11 @@ import com.example.learning_android_music_app_kulakov.exoplayer.callbacks.MusicP
 import com.example.learning_android_music_app_kulakov.exoplayer.callbacks.MusicPlayerNotificationListener
 import com.example.learning_android_music_app_kulakov.other.Constants.MEDIA_ROOT_ID
 import com.example.learning_android_music_app_kulakov.other.Constants.NETWORK_ERROR
+import com.google.android.exoplayer2.ExoPlayer
 import com.google.android.exoplayer2.Player
-import com.google.android.exoplayer2.SimpleExoPlayer
 import com.google.android.exoplayer2.ext.mediasession.MediaSessionConnector
 import com.google.android.exoplayer2.ext.mediasession.TimelineQueueNavigator
-import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory
+import com.google.android.exoplayer2.upstream.DefaultDataSource
 import kotlinx.coroutines.*
 import org.koin.android.ext.android.inject
 
@@ -26,11 +26,11 @@ private const val SERVICE_TAG = "MusicService"
 
 class MusicService: MediaBrowserServiceCompat() {
 
-    private val dataSourceFactory: DefaultDataSourceFactory by inject()
+    private val dataSourceFactory: DefaultDataSource.Factory by inject()
 
-    private val exoPlayer: SimpleExoPlayer by inject()
+    private val exoPlayer: ExoPlayer by inject()
 
-    private val firebaseMusicSource: MusicSource by inject()
+    private val musicSource: MusicSource by inject()
 
     private lateinit var musicNotificationManager: MusicNotificationManager
 
@@ -57,7 +57,7 @@ class MusicService: MediaBrowserServiceCompat() {
         super.onCreate()
 
         serviceScope.launch {
-            firebaseMusicSource.fetchMediaData()
+            musicSource.fetchMediaData()
         }
 
         val activityIntent = packageManager?.getLaunchIntentForPackage(packageName)?.let {
@@ -79,10 +79,10 @@ class MusicService: MediaBrowserServiceCompat() {
             curSongDuration = exoPlayer.duration
         }
 
-        val musicPlaybackPreparer = MusicPlaybackPreparer(firebaseMusicSource) {
+        val musicPlaybackPreparer = MusicPlaybackPreparer(musicSource) {
             curPlayingSong = it
             preparePlayer(
-                firebaseMusicSource.songs,
+                musicSource.songs,
                 it,
                 true
             )
@@ -100,7 +100,7 @@ class MusicService: MediaBrowserServiceCompat() {
 
     private inner class MusicQueueNavigator : TimelineQueueNavigator(mediaSession) {
         override fun getMediaDescription(player: Player, windowIndex: Int): MediaDescriptionCompat {
-            return firebaseMusicSource.songs[windowIndex].description
+            return musicSource.songs[windowIndex].description
         }
     }
 
@@ -110,7 +110,8 @@ class MusicService: MediaBrowserServiceCompat() {
         playNow: Boolean
     ) {
         val curSongIndex = if(curPlayingSong == null) 0 else songs.indexOf(itemToPlay)
-        exoPlayer.prepare(firebaseMusicSource.asMediaSource(dataSourceFactory))
+        exoPlayer.setMediaSource(musicSource.asMediaSource(dataSourceFactory))
+        exoPlayer.prepare()
         exoPlayer.seekTo(curSongIndex, 0L)
         exoPlayer.playWhenReady = playNow
     }
@@ -142,13 +143,13 @@ class MusicService: MediaBrowserServiceCompat() {
     ) {
         when(parentId) {
             MEDIA_ROOT_ID -> {
-                val resultsSent = firebaseMusicSource.whenReady { isInitialized ->
+                val resultsSent = musicSource.whenReady { isInitialized ->
                     if(isInitialized) {
-                        result.sendResult(firebaseMusicSource.asMediaItems())
-                        if(!isPlayerInitialized && firebaseMusicSource.songs.isNotEmpty()) {
+                        result.sendResult(musicSource.asMediaItems())
+                        if(!isPlayerInitialized && musicSource.songs.isNotEmpty()) {
 
                             serviceScope.launch {
-                                preparePlayer(firebaseMusicSource.songs, firebaseMusicSource.songs[0], false)
+                                preparePlayer(musicSource.songs, musicSource.songs[0], false)
                             }
 
                             isPlayerInitialized = true

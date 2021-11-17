@@ -7,12 +7,12 @@ import com.example.learning_android_music_app_kulakov.R
 import com.example.learning_android_music_app_kulakov.exoplayer.MusicServiceConnection
 import com.example.learning_android_music_app_kulakov.exoplayer.MusicSource
 import com.google.android.exoplayer2.C
-import com.google.android.exoplayer2.SimpleExoPlayer
+import com.google.android.exoplayer2.ExoPlayer
 import com.google.android.exoplayer2.audio.AudioAttributes
-import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory
-import com.google.android.exoplayer2.util.Util
+import com.google.android.exoplayer2.upstream.DefaultDataSource
 import org.koin.android.ext.koin.androidContext
 import org.koin.dsl.module
+
 
 val appModule = module {
     single {
@@ -20,15 +20,14 @@ val appModule = module {
     }
 
     single {
-        SimpleExoPlayer.Builder(androidContext()).build().apply {
+        ExoPlayer.Builder(androidContext()).build().apply {
             setAudioAttributes(get(), true)
             setHandleAudioBecomingNoisy(true)
         }
     }
 
     single {
-        val appName = androidContext().getString(R.string.app_name)
-        DefaultDataSourceFactory(androidContext(), Util.getUserAgent(androidContext(), appName))
+        DefaultDataSource.Factory(androidContext())
     }
 
     single {

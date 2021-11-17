@@ -1,6 +1,7 @@
 package com.example.learning_android_music_app_kulakov.ui.fragments.main
 
 import android.support.v4.media.MediaBrowserCompat
+import android.support.v4.media.MediaDescriptionCompat
 import android.support.v4.media.MediaMetadataCompat
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
@@ -12,6 +13,7 @@ import com.example.learning_android_music_app_kulakov.exoplayer.isPrepared
 import com.example.learning_android_music_app_kulakov.models.Song
 import com.example.learning_android_music_app_kulakov.other.Constants.MEDIA_ROOT_ID
 import com.example.learning_android_music_app_kulakov.other.Resource
+import timber.log.Timber
 
 class MainVM(
     private val musicServiceConnection: MusicServiceConnection
@@ -36,12 +38,14 @@ class MainVM(
             ) {
                 super.onChildrenLoaded(parentId, children)
                 val items = children.map {
+                    Timber.e("metadata ${it.description.extras}")
+
                     Song(
                         it.mediaId!!,
                         it.description.title.toString(),
                         it.description.subtitle.toString(),
                         it.description.mediaUri.toString(),
-                        it.description.iconUri.toString()
+                        it.description.iconUri.toString(),
                     )
                 }
                 _mediaItems.value = Resource.success(items)

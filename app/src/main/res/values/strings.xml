@@ -1,7 +1,7 @@
 <resources>
     <string name="app_name">Learning_Android_Music_app_Kulakov</string>
 
-    <string name="unknown_error">Unknown error occurred</string>
+    <string name="unknown_error">An unknown error occurred</string>
 
     <string name="notification_channel_name">Music Channel</string>
     <string name="notification_channel_description">Shows the currently playing music</string>
