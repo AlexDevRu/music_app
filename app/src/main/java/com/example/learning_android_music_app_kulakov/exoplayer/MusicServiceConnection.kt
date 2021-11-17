@@ -28,9 +28,6 @@ class MusicServiceConnection(
 
     private val _curPlayingSong = MutableLiveData<MediaMetadataCompat?>()
     val curPlayingSong: LiveData<MediaMetadataCompat?> = _curPlayingSong
-
-    private val _currentPlayId = MutableLiveData<String>(curPlayingSong.value?.description?.mediaId)
-    val currentPlayId: LiveData<String> = _currentPlayId
     
     lateinit var mediaController: MediaControllerCompat
 
@@ -108,7 +105,6 @@ class MusicServiceConnection(
 
         override fun onMetadataChanged(metadata: MediaMetadataCompat?) {
             _curPlayingSong.postValue(metadata)
-            _currentPlayId.postValue(metadata?.description?.mediaId)
         }
 
         override fun onSessionEvent(event: String?, extras: Bundle?) {

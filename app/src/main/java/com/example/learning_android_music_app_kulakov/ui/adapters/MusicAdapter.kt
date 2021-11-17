@@ -21,11 +21,11 @@ class MusicAdapter(
     companion object {
         private val DIFF_UTIL = object: DiffUtil.ItemCallback<Song>() {
             override fun areItemsTheSame(oldItem: Song, newItem: Song): Boolean {
-                return false//oldItem.mediaId == newItem.mediaId
+                return oldItem.mediaId == newItem.mediaId
             }
 
             override fun areContentsTheSame(oldItem: Song, newItem: Song): Boolean {
-                return false//oldItem == newItem
+                return oldItem == newItem
             }
         }
     }
