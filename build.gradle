@@ -27,4 +27,6 @@ ext {
     koin_version = "3.1.2"
     moxy_version = "2.2.2"
     timber_version = "5.0.1"
+    exo_player_version = "2.16.0"
+    glide_version = "4.12.0"
 }

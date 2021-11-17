@@ -3,8 +3,14 @@
   <component name="DesignSurface">
     <option name="filePathToZoomLevelMap">
       <map>
+        <entry key="..\:/Users/User/AndroidStudioProjects/Learning_Android_Music_app_Kulakov/app/src/main/res/drawable-anydpi/ic_skip.xml" value="0.34933605720122574" />
+        <entry key="..\:/Users/User/AndroidStudioProjects/Learning_Android_Music_app_Kulakov/app/src/main/res/drawable-anydpi/ic_skip_previous.xml" value="0.34933605720122574" />
+        <entry key="..\:/Users/User/AndroidStudioProjects/Learning_Android_Music_app_Kulakov/app/src/main/res/drawable/circle_drawable.xml" value="0.34933605720122574" />
+        <entry key="..\:/Users/User/AndroidStudioProjects/Learning_Android_Music_app_Kulakov/app/src/main/res/drawable/ic_pause.xml" value="0.34933605720122574" />
+        <entry key="..\:/Users/User/AndroidStudioProjects/Learning_Android_Music_app_Kulakov/app/src/main/res/drawable/ic_play.xml" value="0.34933605720122574" />
         <entry key="..\:/Users/User/AndroidStudioProjects/Learning_Android_Music_app_Kulakov/app/src/main/res/layout/activity_main.xml" value="0.25" />
-        <entry key="..\:/Users/User/AndroidStudioProjects/Learning_Android_Music_app_Kulakov/app/src/main/res/layout/fragment_main.xml" value="0.33" />
+        <entry key="..\:/Users/User/AndroidStudioProjects/Learning_Android_Music_app_Kulakov/app/src/main/res/layout/fragment_main.xml" value="0.25" />
+        <entry key="..\:/Users/User/AndroidStudioProjects/Learning_Android_Music_app_Kulakov/app/src/main/res/layout/fragment_song.xml" value="0.33" />
         <entry key="..\:/Users/User/AndroidStudioProjects/Learning_Android_Music_app_Kulakov/app/src/main/res/layout/viewholder_music_item.xml" value="0.33" />
       </map>
     </option>

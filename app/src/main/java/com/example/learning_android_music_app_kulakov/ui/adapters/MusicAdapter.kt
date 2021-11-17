@@ -5,19 +5,23 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
+import com.bumptech.glide.Glide
 import com.example.learning_android_music_app_kulakov.databinding.ViewholderMusicItemBinding
-import com.example.learning_android_music_app_kulakov.ui.fragments.main.MusicItem
-import timber.log.Timber
+import com.example.learning_android_music_app_kulakov.models.Song
+import java.text.SimpleDateFormat
+import java.util.*
 
-class MusicAdapter: ListAdapter<MusicItem, MusicAdapter.MusicItemViewHolder>(DIFF_UTIL) {
+class MusicAdapter(
+    private val onItemClickListener: (Song) -> Unit
+): ListAdapter<Song, MusicAdapter.MusicItemViewHolder>(DIFF_UTIL) {
 
     companion object {
-        private val DIFF_UTIL = object: DiffUtil.ItemCallback<MusicItem>() {
-            override fun areItemsTheSame(oldItem: MusicItem, newItem: MusicItem): Boolean {
-                return oldItem.id == newItem.id
+        private val DIFF_UTIL = object: DiffUtil.ItemCallback<Song>() {
+            override fun areItemsTheSame(oldItem: Song, newItem: Song): Boolean {
+                return oldItem.mediaId == newItem.mediaId
             }
 
-            override fun areContentsTheSame(oldItem: MusicItem, newItem: MusicItem): Boolean {
+            override fun areContentsTheSame(oldItem: Song, newItem: Song): Boolean {
                 return oldItem == newItem
             }
         }
@@ -27,18 +31,19 @@ class MusicAdapter: ListAdapter<MusicItem, MusicAdapter.MusicItemViewHolder>(DIF
         private val binding: ViewholderMusicItemBinding
     ): RecyclerView.ViewHolder(binding.root) {
 
-        private val millisInHour = 3600 * 1000
-        private val millisInMinute = 60 * 1000
+        fun bind(musicItem: Song) {
+            binding.name.text = musicItem.title
+            binding.artistName.text = musicItem.subtitle
 
-        fun bind(musicItem: MusicItem) {
-            binding.name.text = musicItem.name
-            binding.artistName.text = musicItem.artistName
+            //binding.duration.text = SimpleDateFormat("mm:ss", Locale.getDefault()).format(musicItem.duration)
 
-            val hours = musicItem.duration / millisInHour
-            val minutes = (musicItem.duration % millisInHour) / millisInMinute
-            val seconds = ((musicItem.duration % millisInHour) % millisInMinute) / 1000
+            Glide.with(binding.root).asBitmap()
+                .load(musicItem.imageUrl)
+                .into(binding.image)
 
-            binding.duration.text = "$hours:$minutes:$seconds"
+            binding.root.setOnClickListener {
+                onItemClickListener(musicItem)
+            }
         }
     }
 

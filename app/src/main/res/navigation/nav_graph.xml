@@ -8,5 +8,13 @@
         android:id="@+id/mainFragment"
         tools:layout="@layout/fragment_main"
         android:name="com.example.learning_android_music_app_kulakov.ui.fragments.main.MainFragment"
-        android:label="MainFragment" />
+        android:label="MainFragment" >
+        <action
+            android:id="@+id/action_mainFragment_to_songFragment"
+            app:destination="@id/songFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/songFragment"
+        android:name="com.example.learning_android_music_app_kulakov.ui.fragments.song.SongFragment"
+        android:label="SongFragment" />
 </navigation>
