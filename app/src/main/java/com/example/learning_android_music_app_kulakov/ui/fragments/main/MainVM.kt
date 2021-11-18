@@ -1,11 +1,12 @@
 package com.example.learning_android_music_app_kulakov.ui.fragments.main
 
+import android.app.Application
 import android.support.v4.media.MediaBrowserCompat
-import android.support.v4.media.MediaDescriptionCompat
 import android.support.v4.media.MediaMetadataCompat
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import com.example.learning_android_music_app_kulakov.R
 import com.example.learning_android_music_app_kulakov.exoplayer.MusicServiceConnection
 import com.example.learning_android_music_app_kulakov.exoplayer.isPlayEnabled
 import com.example.learning_android_music_app_kulakov.exoplayer.isPlaying
@@ -16,17 +17,16 @@ import com.example.learning_android_music_app_kulakov.other.Resource
 import timber.log.Timber
 
 class MainVM(
+    private val app: Application,
     private val musicServiceConnection: MusicServiceConnection
 ): ViewModel() {
 
     private val _mediaItems = MutableLiveData<Resource<List<Song>>>()
     val mediaItems: LiveData<Resource<List<Song>>> = _mediaItems
 
-    val isConnected = musicServiceConnection.isConnected
     val networkError = musicServiceConnection.networkError
     val curPlayingSong = musicServiceConnection.curPlayingSong
     val playbackState = musicServiceConnection.playbackState
-
 
     fun connectToService() {
         _mediaItems.value = Resource.loading(null)
@@ -83,7 +83,7 @@ class MainVM(
 
     fun onPermissionsResult(result: Boolean) {
         if(result) connectToService()
-        else _mediaItems.value = Resource.error("oitr", null)
+        else _mediaItems.value = Resource.error(app.getString(R.string.permission_denied))
     }
 
     override fun onCleared() {

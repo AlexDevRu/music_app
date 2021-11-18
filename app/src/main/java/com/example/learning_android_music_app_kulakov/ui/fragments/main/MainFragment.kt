@@ -9,8 +9,6 @@ import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.DividerItemDecoration
 import com.example.learning_android_music_app_kulakov.databinding.FragmentMainBinding
 import com.example.learning_android_music_app_kulakov.exoplayer.isPlaying
-import com.example.learning_android_music_app_kulakov.exoplayer.toSong
-import com.example.learning_android_music_app_kulakov.models.Song
 import com.example.learning_android_music_app_kulakov.other.Status
 import com.example.learning_android_music_app_kulakov.ui.adapters.MusicAdapter
 import com.example.learning_android_music_app_kulakov.ui.fragments.base.BaseFragment
@@ -85,19 +83,23 @@ class MainFragment: BaseFragment<FragmentMainBinding>(FragmentMainBinding::infla
         }
 
         mainViewModel.curPlayingSong.observe(viewLifecycleOwner) { metadata ->
-            mainViewModel.mediaItems.value?.data?.forEach {
-                it.isPlaying = it.mediaId == metadata?.description?.mediaId && mainViewModel.playbackState.value?.isPlaying == true
+            val list = mainViewModel.mediaItems.value?.data?.map {
+                it.copy(isPlaying = it.mediaId == metadata?.description?.mediaId && mainViewModel.playbackState.value?.isPlaying == true)
             }
-            musicAdapter.submitList(mainViewModel.mediaItems.value?.data)
-            musicAdapter.notifyDataSetChanged()
+
+            musicAdapter.submitList(list)
         }
 
         mainViewModel.playbackState.observe(viewLifecycleOwner) { playState ->
-            mainViewModel.mediaItems.value?.data?.forEach {
-                it.isPlaying = it.mediaId == mainViewModel.curPlayingSong.value?.description?.mediaId && playState?.isPlaying == true
+            val list = mainViewModel.mediaItems.value?.data?.map {
+                it.copy(isPlaying = it.mediaId == mainViewModel.curPlayingSong.value?.description?.mediaId && playState?.isPlaying == true)
             }
-            musicAdapter.submitList(mainViewModel.mediaItems.value?.data)
-            musicAdapter.notifyDataSetChanged()
+            musicAdapter.submitList(list)
+        }
+
+        mainViewModel.networkError.observe(viewLifecycleOwner) {
+            if(!it.hasBeenHandled)
+                showSnackBar(it.getContentIfNotHandled()?.message.orEmpty())
         }
     }
 }

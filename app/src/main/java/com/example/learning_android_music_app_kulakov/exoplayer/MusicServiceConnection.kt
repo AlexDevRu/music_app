@@ -9,13 +9,14 @@ import android.support.v4.media.session.MediaControllerCompat
 import android.support.v4.media.session.PlaybackStateCompat
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
+import com.example.learning_android_music_app_kulakov.R
 import com.example.learning_android_music_app_kulakov.other.Constants.NETWORK_ERROR
 import com.example.learning_android_music_app_kulakov.other.Event
 import com.example.learning_android_music_app_kulakov.other.Resource
 import timber.log.Timber
 
 class MusicServiceConnection(
-    context: Context
+    private val context: Context
 ) {
     private val _isConnected = MutableLiveData<Event<Resource<Boolean>>>()
     val isConnected: LiveData<Event<Resource<Boolean>>> = _isConnected
@@ -113,8 +114,7 @@ class MusicServiceConnection(
                 NETWORK_ERROR -> _networkError.postValue(
                     Event(
                         Resource.error(
-                            "Couldn't connect to the server. Please check your internet connection.",
-                            null
+                            context.getString(R.string.network_error)
                         )
                     )
                 )
@@ -126,20 +126,3 @@ class MusicServiceConnection(
         }
     }
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
