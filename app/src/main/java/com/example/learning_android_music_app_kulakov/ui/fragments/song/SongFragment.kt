@@ -104,7 +104,9 @@ class SongFragment: BaseFragment<FragmentSongBinding>(FragmentSongBinding::infla
         }
         songViewModel.curPlayerPosition.observe(viewLifecycleOwner) {
             if(shouldUpdateSeekbar) {
-                binding.seekBar.value = it.toFloat()
+                val floatValue = it.toFloat()
+                if(floatValue >= binding.seekBar.valueFrom && floatValue <= binding.seekBar.valueTo)
+                    binding.seekBar.value = floatValue
                 setCurPlayerTimeToTextView(it)
             }
         }
