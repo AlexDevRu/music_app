@@ -13,12 +13,12 @@
         android:layout_height="wrap_content"
         android:layout_marginStart="16dp"
         android:gravity="center"
-        android:text="SONG NAME"
         android:textSize="24sp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.5"
         app:layout_constraintStart_toEndOf="@+id/ivSongImage"
-        app:layout_constraintTop_toTopOf="@+id/ivSongImage" />
+        app:layout_constraintTop_toTopOf="@+id/ivSongImage"
+        tools:text="SONG NAME" />
 
     <ImageView
         android:id="@+id/ivSongImage"
@@ -33,34 +33,37 @@
         android:id="@+id/tvCurTime"
         android:layout_width="50dp"
         android:layout_height="wrap_content"
-        android:gravity="center"
-        android:text="00:00"
         android:layout_marginStart="16dp"
+        android:gravity="center"
         android:textSize="14sp"
         app:layout_constraintBottom_toBottomOf="@+id/seekBar"
         app:layout_constraintStart_toEndOf="@+id/ivSongImage"
-        app:layout_constraintTop_toTopOf="@+id/seekBar" />
+        app:layout_constraintTop_toTopOf="@+id/seekBar"
+        tools:text="00:00" />
 
-    <SeekBar
+    <com.google.android.material.slider.Slider
         android:id="@+id/seekBar"
         android:layout_width="0dp"
-        android:layout_height="18dp"
+        android:layout_height="wrap_content"
+        android:valueFrom="0.0"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toStartOf="@+id/tvSongDuration"
         app:layout_constraintStart_toEndOf="@+id/tvCurTime"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toTopOf="parent"
+        app:thumbRadius="10dp"
+        app:trackHeight="4dp" />
 
     <com.google.android.material.textview.MaterialTextView
         android:id="@+id/tvSongDuration"
         android:layout_width="50dp"
         android:layout_height="wrap_content"
-        android:gravity="center"
-        android:text="00:00"
         android:layout_marginEnd="16dp"
+        android:gravity="center"
         android:textSize="14sp"
         app:layout_constraintBottom_toBottomOf="@+id/seekBar"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toTopOf="@+id/seekBar" />
+        app:layout_constraintTop_toTopOf="@+id/seekBar"
+        tools:text="00:00" />
 
     <ImageButton
         android:id="@+id/ivPlayPauseDetail"

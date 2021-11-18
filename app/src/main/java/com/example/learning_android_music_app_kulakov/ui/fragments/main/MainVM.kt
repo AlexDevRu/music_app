@@ -54,11 +54,27 @@ class MainVM(
     }
 
     fun skipToNextSong() {
-        musicServiceConnection.transportControls.skipToNext()
+        if(curPlayingSong.value?.description?.mediaId == mediaItems.value?.data?.last()?.mediaId)
+            moveToFirst()
+        else
+            musicServiceConnection.transportControls.skipToNext()
     }
 
     fun skipToPreviousSong() {
-        musicServiceConnection.transportControls.skipToPrevious()
+        if(curPlayingSong.value?.description?.mediaId == mediaItems.value?.data?.first()?.mediaId)
+            moveToLast()
+        else
+            musicServiceConnection.transportControls.skipToPrevious()
+    }
+
+    fun moveToFirst() {
+        if(!mediaItems.value?.data.isNullOrEmpty())
+            musicServiceConnection.transportControls.playFromMediaId(mediaItems.value!!.data!!.first().mediaId, null)
+    }
+
+    fun moveToLast() {
+        if(!mediaItems.value?.data.isNullOrEmpty())
+            musicServiceConnection.transportControls.playFromMediaId(mediaItems.value!!.data!!.last().mediaId, null)
     }
 
     fun seekTo(pos: Long) {

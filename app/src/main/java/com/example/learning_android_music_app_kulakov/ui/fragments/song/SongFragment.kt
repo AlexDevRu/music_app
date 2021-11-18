@@ -3,7 +3,6 @@ package com.example.learning_android_music_app_kulakov.ui.fragments.song
 import android.os.Bundle
 import android.support.v4.media.session.PlaybackStateCompat
 import android.view.View
-import android.widget.SeekBar
 import com.bumptech.glide.RequestManager
 import com.example.learning_android_music_app_kulakov.R
 import com.example.learning_android_music_app_kulakov.databinding.FragmentSongBinding
@@ -13,6 +12,7 @@ import com.example.learning_android_music_app_kulakov.models.Song
 import com.example.learning_android_music_app_kulakov.other.Status
 import com.example.learning_android_music_app_kulakov.ui.fragments.base.BaseFragment
 import com.example.learning_android_music_app_kulakov.ui.fragments.main.MainVM
+import com.google.android.material.slider.Slider
 import org.koin.android.ext.android.inject
 import org.koin.androidx.viewmodel.ext.android.sharedViewModel
 import org.koin.androidx.viewmodel.ext.android.viewModel
@@ -29,6 +29,8 @@ class SongFragment: BaseFragment<FragmentSongBinding>(FragmentSongBinding::infla
 
     private var playbackState: PlaybackStateCompat? = null
 
+    private val dateFormat = SimpleDateFormat("mm:ss", Locale.getDefault())
+
     private val songViewModel by viewModel<SongVM>()
     private val mainViewModel by sharedViewModel<MainVM>()
 
@@ -43,24 +45,25 @@ class SongFragment: BaseFragment<FragmentSongBinding>(FragmentSongBinding::infla
             }
         }
 
-        binding.seekBar.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
-            override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
-                if(fromUser) {
-                    setCurPlayerTimeToTextView(progress.toLong())
-                }
+        binding.seekBar.addOnChangeListener { _, value, fromUser ->
+            if(fromUser) {
+                setCurPlayerTimeToTextView(value.toLong())
             }
-
-            override fun onStartTrackingTouch(seekBar: SeekBar?) {
+        }
+        binding.seekBar.addOnSliderTouchListener(object: Slider.OnSliderTouchListener {
+            override fun onStartTrackingTouch(slider: Slider) {
                 shouldUpdateSeekbar = false
             }
 
-            override fun onStopTrackingTouch(seekBar: SeekBar?) {
-                seekBar?.let {
-                    mainViewModel.seekTo(it.progress.toLong())
-                    shouldUpdateSeekbar = true
-                }
+            override fun onStopTrackingTouch(slider: Slider) {
+                mainViewModel.seekTo(slider.value.toLong())
+                shouldUpdateSeekbar = true
             }
         })
+
+        binding.seekBar.setLabelFormatter {
+            dateFormat.format(it.toLong())
+        }
 
         binding.ivSkipPrevious.setOnClickListener {
             mainViewModel.skipToPreviousSong()
@@ -97,23 +100,23 @@ class SongFragment: BaseFragment<FragmentSongBinding>(FragmentSongBinding::infla
             binding.ivPlayPauseDetail.setImageResource(
                 if(playbackState?.isPlaying == true) R.drawable.ic_pause else R.drawable.ic_play
             )
-            binding.seekBar.progress = it?.position?.toInt() ?: 0
+            binding.seekBar.value = it?.position?.toFloat() ?: 0f
         }
         songViewModel.curPlayerPosition.observe(viewLifecycleOwner) {
             if(shouldUpdateSeekbar) {
-                binding.seekBar.progress = it.toInt()
+                binding.seekBar.value = it.toFloat()
                 setCurPlayerTimeToTextView(it)
             }
         }
         songViewModel.curSongDuration.observe(viewLifecycleOwner) {
-            binding.seekBar.max = it.toInt()
-            val dateFormat = SimpleDateFormat("mm:ss", Locale.getDefault())
-            binding.tvSongDuration.text = dateFormat.format(it)
+            if(it > 0) {
+                binding.seekBar.valueTo = it.toFloat()
+                binding.tvSongDuration.text = dateFormat.format(it)
+            }
         }
     }
 
     private fun setCurPlayerTimeToTextView(ms: Long) {
-        val dateFormat = SimpleDateFormat("mm:ss", Locale.getDefault())
         binding.tvCurTime.text = dateFormat.format(ms)
     }
 
