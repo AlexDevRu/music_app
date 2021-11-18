@@ -7,23 +7,26 @@
     android:background="?attr/selectableItemBackground"
     android:clickable="true"
     android:focusable="true"
-    android:padding="10dp">
+    android:paddingTop="10dp">
 
     <ImageView
         android:id="@+id/image"
         android:layout_width="60dp"
         android:layout_height="60dp"
+        android:layout_marginStart="10dp"
+        android:layout_marginBottom="10dp"
+        android:contentDescription=""
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        tools:srcCompat="@tools:sample/avatars"
-        android:contentDescription="" />
+        app:layout_constraintBottom_toTopOf="@id/durationProgress"
+        tools:srcCompat="@drawable/ic_baseline_music_note_24" />
 
     <TextView
         android:id="@+id/name"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginEnd="10dp"
         android:layout_marginStart="10dp"
+        android:layout_marginEnd="10dp"
         android:ellipsize="end"
         android:maxLines="1"
         android:textSize="18sp"
@@ -40,31 +43,45 @@
         android:layout_height="wrap_content"
         android:layout_marginStart="10dp"
         android:layout_marginEnd="10dp"
-        android:maxLines="1"
-        app:singleLine="true"
         android:ellipsize="end"
+        android:maxLines="1"
         app:layout_constraintEnd_toStartOf="@+id/playButton"
         app:layout_constraintStart_toEndOf="@id/image"
         app:layout_constraintTop_toBottomOf="@id/name"
+        app:singleLine="true"
         tools:text="TextView" />
 
     <TextView
         android:id="@+id/duration"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        app:layout_constraintTop_toBottomOf="@id/artistName"
-        app:layout_constraintStart_toStartOf="@id/artistName"
-        tools:text="TextView" />
+        android:layout_marginEnd="10dp"
+        app:layout_constraintBottom_toTopOf="@id/durationProgress"
+        app:layout_constraintEnd_toEndOf="parent"
+        tools:text="00:00 - 03:33" />
 
     <ImageButton
         android:id="@+id/playButton"
-        android:backgroundTint="@color/black"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        app:layout_constraintBottom_toBottomOf="parent"
+        android:layout_marginEnd="10dp"
+        android:padding="14dp"
+        android:backgroundTint="@color/black"
+        android:contentDescription=""
+        app:layout_constraintBottom_toTopOf="@id/duration"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:srcCompat="@drawable/ic_play"
-        android:contentDescription="" />
+        app:srcCompat="@drawable/ic_play" />
+
+    <ProgressBar
+        android:id="@+id/durationProgress"
+        style="?android:attr/progressBarStyleHorizontal"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:minHeight="4dp"
+        tools:progress="50"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toStartOf="@id/duration"
+        app:layout_constraintStart_toStartOf="parent" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

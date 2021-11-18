@@ -12,7 +12,7 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 class SongVM(
-    private val musicServiceConnection: MusicServiceConnection
+    musicServiceConnection: MusicServiceConnection
 ): ViewModel() {
     private val playbackState = musicServiceConnection.playbackState
 
@@ -26,7 +26,7 @@ class SongVM(
         updateCurrentPlayerPosition()
     }
 
-    private fun updateCurrentPlayerPosition() {
+    fun updateCurrentPlayerPosition() {
         viewModelScope.launch {
             while(true) {
                 val pos = playbackState.value?.currentPlaybackPosition

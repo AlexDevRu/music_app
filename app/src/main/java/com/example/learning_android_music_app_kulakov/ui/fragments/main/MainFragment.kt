@@ -17,12 +17,15 @@ import com.example.learning_android_music_app_kulakov.exoplayer.isPlaying
 import com.example.learning_android_music_app_kulakov.other.Status
 import com.example.learning_android_music_app_kulakov.ui.adapters.MusicAdapter
 import com.example.learning_android_music_app_kulakov.ui.fragments.base.BaseFragment
+import com.example.learning_android_music_app_kulakov.ui.fragments.song.SongVM
 import org.koin.androidx.viewmodel.ext.android.sharedViewModel
+import timber.log.Timber
 
 
 class MainFragment: BaseFragment<FragmentMainBinding>(FragmentMainBinding::inflate) {
 
     private val mainViewModel by sharedViewModel<MainVM>()
+    private val songVM by sharedViewModel<SongVM>()
 
     private val permissionLauncher = registerForActivityResult(
         ActivityResultContracts.RequestPermission()
@@ -90,8 +93,9 @@ class MainFragment: BaseFragment<FragmentMainBinding>(FragmentMainBinding::infla
                     binding.progressBar.isVisible = false
                     result.data?.let { songs ->
                         songs.forEach {
-                            it.isPlaying = it.mediaId == mainViewModel.curPlayingSong.value?.description?.mediaId &&
-                                    mainViewModel.playbackState.value?.isPlaying == true
+                            val isCurrent = it.mediaId == mainViewModel.curPlayingSong.value?.description?.mediaId
+                            it.isPlaying = isCurrent && mainViewModel.playbackState.value?.isPlaying == true
+                            it.isCurrent = isCurrent
                         }
                         musicAdapter.submitList(songs)
                     }
@@ -107,16 +111,28 @@ class MainFragment: BaseFragment<FragmentMainBinding>(FragmentMainBinding::infla
         }
 
         mainViewModel.curPlayingSong.observe(viewLifecycleOwner) { metadata ->
+            Timber.w("curPlayingSong changed")
+
             val list = mainViewModel.mediaItems.value?.data?.map {
-                it.copy(isPlaying = it.mediaId == metadata?.description?.mediaId && mainViewModel.playbackState.value?.isPlaying == true)
+                val isCurrent = it.mediaId == metadata?.description?.mediaId
+                it.copy(
+                    isCurrent = isCurrent,
+                    isPlaying = isCurrent && mainViewModel.playbackState.value?.isPlaying == true,
+                )
             }
 
             musicAdapter.submitList(list)
         }
 
         mainViewModel.playbackState.observe(viewLifecycleOwner) { playState ->
+            Timber.w("playbackstate changed")
+
             val list = mainViewModel.mediaItems.value?.data?.map {
-                it.copy(isPlaying = it.mediaId == mainViewModel.curPlayingSong.value?.description?.mediaId && playState?.isPlaying == true)
+                val isCurrent = it.mediaId == mainViewModel.curPlayingSong.value?.description?.mediaId
+                it.copy(
+                    isCurrent = isCurrent,
+                    isPlaying = isCurrent && playState?.isPlaying == true,
+                )
             }
             musicAdapter.submitList(list)
         }
@@ -124,6 +140,17 @@ class MainFragment: BaseFragment<FragmentMainBinding>(FragmentMainBinding::infla
         mainViewModel.networkError.observe(viewLifecycleOwner) {
             if(!it.hasBeenHandled)
                 showSnackBar(it.getContentIfNotHandled()?.message.orEmpty())
+        }
+
+        songVM.curSongDuration.observe(viewLifecycleOwner) {
+            Timber.w("curSongDuration changed $it")
+            musicAdapter.updateCurrentMediaDuration(it)
+            musicAdapter.updateCurrentMediaProgress(songVM.curPlayerPosition.value ?: 0L)
+        }
+
+        songVM.curPlayerPosition.observe(viewLifecycleOwner) {
+            Timber.w("curPlayerPosition changed $it")
+            musicAdapter.updateCurrentMediaProgress(it)
         }
     }
 }

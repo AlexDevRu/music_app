@@ -7,5 +7,6 @@ data class Song(
     val songUrl: String = "",
     val imageUrl: String = "",
     val duration: Long = 0L,
-    var isPlaying: Boolean = false
+    var isPlaying: Boolean = false,
+    var isCurrent: Boolean = false
 )

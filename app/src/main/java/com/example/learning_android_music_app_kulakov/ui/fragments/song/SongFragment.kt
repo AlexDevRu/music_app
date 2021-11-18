@@ -31,11 +31,13 @@ class SongFragment: BaseFragment<FragmentSongBinding>(FragmentSongBinding::infla
 
     private val dateFormat = SimpleDateFormat("mm:ss", Locale.getDefault())
 
-    private val songViewModel by viewModel<SongVM>()
+    private val songViewModel by sharedViewModel<SongVM>()
     private val mainViewModel by sharedViewModel<MainVM>()
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+
+        binding.seekBar.valueTo = Int.MAX_VALUE.toFloat()
 
         subscribeToObservers()
 

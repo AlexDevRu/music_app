@@ -1,7 +1,9 @@
 package com.example.learning_android_music_app_kulakov.ui.adapters
 
+import android.annotation.SuppressLint
 import android.view.LayoutInflater
 import android.view.ViewGroup
+import androidx.core.view.isVisible
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
@@ -30,23 +32,24 @@ class MusicAdapter(
         }
     }
 
+    private val timeFormatter = SimpleDateFormat("mm:ss", Locale.getDefault())
+
     inner class MusicItemViewHolder(
         private val binding: ViewholderMusicItemBinding
     ): RecyclerView.ViewHolder(binding.root) {
-        fun bind(musicItem: Song, position: Int) {
+        fun bind(musicItem: Song) {
             binding.name.text = musicItem.title
             binding.artistName.text = musicItem.subtitle
 
-            Timber.d("duration ${musicItem.duration}")
-            binding.duration.text = SimpleDateFormat("mm:ss", Locale.getDefault()).format(musicItem.duration)
-
             Glide.with(binding.root)
                 .load(musicItem.imageUrl)
+                .placeholder(R.drawable.ic_baseline_music_note_24)
+                .error(R.drawable.ic_baseline_music_note_24)
                 .into(binding.image)
 
             binding.playButton.setOnClickListener {
                 onPlayClickListener(musicItem)
-                togglePlay(!musicItem.isPlaying)
+                //togglePlay(!musicItem.isPlaying)
             }
 
             binding.root.setOnClickListener {
@@ -54,19 +57,54 @@ class MusicAdapter(
             }
 
             togglePlay(musicItem.isPlaying)
+
+            binding.durationProgress.isVisible = musicItem.isCurrent
+            binding.duration.isVisible = musicItem.isCurrent
         }
 
         fun togglePlay(isPlay: Boolean) {
             if(isPlay) binding.playButton.setImageResource(R.drawable.ic_pause)
             else binding.playButton.setImageResource(R.drawable.ic_play)
         }
+
+        fun updateCurrentMediaDuration(duration: Long) {
+            binding.durationProgress.max = duration.toInt()
+        }
+
+        @SuppressLint("SetTextI18n")
+        fun updateCurrentMediaProgress(value: Long) {
+            if(value in 0..binding.durationProgress.max)
+                binding.durationProgress.progress = value.toInt()
+            binding.duration.text = "${timeFormatter.format(value)} - ${timeFormatter.format(binding.durationProgress.max)}"
+        }
     }
 
-    fun updateCurrentMedia(mediaId: String) {
-        holderMap[mediaId]?.let { notifyItemChanged(it) }
+    private var pendingDuration: Long? = null
+    private var pendingProgress: Long? = null
+
+    fun updateCurrentMediaDuration(duration: Long) {
+        if(currentMedia == null) pendingDuration = duration
+        else {
+            pendingDuration = null
+            currentMedia?.updateCurrentMediaDuration(duration)
+        }
+    }
+    fun updateCurrentMediaProgress(value: Long) {
+        if(currentMedia == null) pendingProgress = value
+        else {
+            pendingProgress = null
+            currentMedia?.updateCurrentMediaProgress(value)
+        }
     }
 
     private val holderMap = mutableMapOf<String, Int>()
+
+    private var currentMedia: MusicItemViewHolder? = null
+        set(value) {
+            field = value
+            if(pendingDuration != null) field?.updateCurrentMediaDuration(pendingDuration!!)
+            if(pendingProgress != null) field?.updateCurrentMediaProgress(pendingProgress!!)
+        }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): MusicItemViewHolder {
         val binding = ViewholderMusicItemBinding.inflate(
@@ -80,7 +118,8 @@ class MusicAdapter(
 
     override fun onBindViewHolder(holder: MusicItemViewHolder, position: Int) {
         val item = getItem(position)
-        holder.bind(item, position)
+        holder.bind(item)
         holderMap[item.mediaId] = position
+        if(item.isCurrent) currentMedia = holder
     }
 }
