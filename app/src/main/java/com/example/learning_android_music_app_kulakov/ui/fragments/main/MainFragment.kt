@@ -2,11 +2,16 @@ package com.example.learning_android_music_app_kulakov.ui.fragments.main
 
 import android.Manifest
 import android.os.Bundle
+import android.view.Menu
+import android.view.MenuInflater
 import android.view.View
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.widget.SearchView
 import androidx.core.view.isVisible
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.DividerItemDecoration
+import com.example.learning_android_music_app_kulakov.R
 import com.example.learning_android_music_app_kulakov.databinding.FragmentMainBinding
 import com.example.learning_android_music_app_kulakov.exoplayer.isPlaying
 import com.example.learning_android_music_app_kulakov.other.Status
@@ -29,6 +34,9 @@ class MainFragment: BaseFragment<FragmentMainBinding>(FragmentMainBinding::infla
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+
+        (requireActivity() as AppCompatActivity).setSupportActionBar(binding.toolbar)
+        setHasOptionsMenu(true)
 
         binding.musicSwipeLayout.setOnRefreshListener {
             mainViewModel.connectToService()
@@ -57,6 +65,22 @@ class MainFragment: BaseFragment<FragmentMainBinding>(FragmentMainBinding::infla
         permissionLauncher.launch(Manifest.permission.READ_EXTERNAL_STORAGE)
 
         observe()
+    }
+
+    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
+        inflater.inflate(R.menu.toolbar_menu, menu)
+        val searchView = menu.findItem(R.id.app_bar_search).actionView as SearchView
+        searchView.setOnQueryTextListener(
+            object: SearchView.OnQueryTextListener {
+                override fun onQueryTextSubmit(query: String?) = false
+
+                override fun onQueryTextChange(newText: String?): Boolean {
+                    mainViewModel.searchByQuery(newText.orEmpty())
+                    return true
+                }
+            }
+        )
+        searchView.maxWidth = Int.MAX_VALUE
     }
 
     private fun observe() {

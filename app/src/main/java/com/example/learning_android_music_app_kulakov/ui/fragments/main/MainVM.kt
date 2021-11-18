@@ -21,6 +21,9 @@ class MainVM(
     private val musicServiceConnection: MusicServiceConnection
 ): ViewModel() {
 
+    private var initialMediaList: List<Song>? = null
+    private var query: String = ""
+
     private val _mediaItems = MutableLiveData<Resource<List<Song>>>()
     val mediaItems: LiveData<Resource<List<Song>>> = _mediaItems
 
@@ -48,9 +51,16 @@ class MainVM(
                         it.description.iconUri.toString(),
                     )
                 }
-                _mediaItems.value = Resource.success(items)
+                initialMediaList = items
+                searchByQuery(query)
             }
         })
+    }
+
+    fun searchByQuery(query: String) {
+        _mediaItems.value = Resource.success(
+            initialMediaList?.filter { it.title.lowercase().contains(query.lowercase()) }
+        )
     }
 
     fun skipToNextSong() {
@@ -67,12 +77,12 @@ class MainVM(
             musicServiceConnection.transportControls.skipToPrevious()
     }
 
-    fun moveToFirst() {
+    private fun moveToFirst() {
         if(!mediaItems.value?.data.isNullOrEmpty())
             musicServiceConnection.transportControls.playFromMediaId(mediaItems.value!!.data!!.first().mediaId, null)
     }
 
-    fun moveToLast() {
+    private fun moveToLast() {
         if(!mediaItems.value?.data.isNullOrEmpty())
             musicServiceConnection.transportControls.playFromMediaId(mediaItems.value!!.data!!.last().mediaId, null)
     }
