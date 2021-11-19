@@ -70,6 +70,8 @@ class MusicNotificationManager(
         ): Bitmap? {
             Glide.with(context).asBitmap()
                 .load(mediaController.metadata.description.iconUri)
+                .placeholder(R.drawable.ic_baseline_music_note_24)
+                .error(R.drawable.ic_baseline_music_note_24)
                 .into(object : CustomTarget<Bitmap>() {
                     override fun onResourceReady(
                         resource: Bitmap,
