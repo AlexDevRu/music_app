@@ -11,14 +11,14 @@ import com.bumptech.glide.Glide
 import com.example.learning_android_music_app_kulakov.R
 import com.example.learning_android_music_app_kulakov.databinding.ViewholderMusicItemBinding
 import com.example.learning_android_music_app_kulakov.models.Song
-import timber.log.Timber
 import java.text.SimpleDateFormat
 import java.util.*
+
 
 class MusicAdapter(
     private val onItemClickListener: (Song) -> Unit,
     private val onPlayClickListener: (Song) -> Unit,
-): ListAdapter<Song, MusicAdapter.MusicItemViewHolder>(DIFF_UTIL) {
+): ListAdapter<Song, MusicAdapter.SongViewHolder>(DIFF_UTIL) {
 
     companion object {
         private val DIFF_UTIL = object: DiffUtil.ItemCallback<Song>() {
@@ -34,41 +34,48 @@ class MusicAdapter(
 
     private val timeFormatter = SimpleDateFormat("mm:ss", Locale.getDefault())
 
-    inner class MusicItemViewHolder(
+    private var pendingProgress: Long? = null
+    private var currentMedia: SongViewHolder? = null
+        set(value) {
+            field = value
+            if(pendingProgress != null) field?.updateCurrentMediaProgress(pendingProgress!!)
+        }
+
+
+    inner class SongViewHolder(
         private val binding: ViewholderMusicItemBinding
     ): RecyclerView.ViewHolder(binding.root) {
-        fun bind(musicItem: Song) {
-            binding.name.text = musicItem.title
-            binding.artistName.text = musicItem.subtitle
+        fun bind(song: Song) {
+            binding.name.text = song.title
+            binding.artistName.text = song.subtitle
+
+            binding.displayDuration.text = timeFormatter.format(song.duration)
+            binding.durationProgress.max = song.duration.toInt()
 
             Glide.with(binding.root)
-                .load(musicItem.imageUrl)
+                .load(song.imageUrl)
                 .placeholder(R.drawable.ic_baseline_music_note_24)
                 .error(R.drawable.ic_baseline_music_note_24)
                 .into(binding.image)
 
             binding.playButton.setOnClickListener {
-                onPlayClickListener(musicItem)
-                //togglePlay(!musicItem.isPlaying)
+                onPlayClickListener(song)
             }
 
             binding.root.setOnClickListener {
-                onItemClickListener(musicItem)
+                onItemClickListener(song)
             }
 
-            togglePlay(musicItem.isPlaying)
+            togglePlay(song.isPlaying)
 
-            binding.durationProgress.isVisible = musicItem.isCurrent
-            binding.duration.isVisible = musicItem.isCurrent
+            binding.durationProgress.isVisible = song.isCurrent
+            binding.duration.isVisible = song.isCurrent
+            binding.displayDuration.isVisible = !song.isCurrent
         }
 
-        fun togglePlay(isPlay: Boolean) {
+        private fun togglePlay(isPlay: Boolean) {
             if(isPlay) binding.playButton.setImageResource(R.drawable.ic_pause)
             else binding.playButton.setImageResource(R.drawable.ic_play)
-        }
-
-        fun updateCurrentMediaDuration(duration: Long) {
-            binding.durationProgress.max = duration.toInt()
         }
 
         @SuppressLint("SetTextI18n")
@@ -79,16 +86,6 @@ class MusicAdapter(
         }
     }
 
-    private var pendingDuration: Long? = null
-    private var pendingProgress: Long? = null
-
-    fun updateCurrentMediaDuration(duration: Long) {
-        if(currentMedia == null) pendingDuration = duration
-        else {
-            pendingDuration = null
-            currentMedia?.updateCurrentMediaDuration(duration)
-        }
-    }
     fun updateCurrentMediaProgress(value: Long) {
         if(currentMedia == null) pendingProgress = value
         else {
@@ -97,29 +94,19 @@ class MusicAdapter(
         }
     }
 
-    private val holderMap = mutableMapOf<String, Int>()
-
-    private var currentMedia: MusicItemViewHolder? = null
-        set(value) {
-            field = value
-            if(pendingDuration != null) field?.updateCurrentMediaDuration(pendingDuration!!)
-            if(pendingProgress != null) field?.updateCurrentMediaProgress(pendingProgress!!)
-        }
-
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): MusicItemViewHolder {
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): SongViewHolder {
         val binding = ViewholderMusicItemBinding.inflate(
             LayoutInflater.from(parent.context),
             parent,
             false
         )
 
-        return MusicItemViewHolder(binding)
+        return SongViewHolder(binding)
     }
 
-    override fun onBindViewHolder(holder: MusicItemViewHolder, position: Int) {
+    override fun onBindViewHolder(holder: SongViewHolder, position: Int) {
         val item = getItem(position)
         holder.bind(item)
-        holderMap[item.mediaId] = position
         if(item.isCurrent) currentMedia = holder
     }
 }

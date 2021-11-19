@@ -3,14 +3,9 @@ package com.example.learning_android_music_app_kulakov.ui.fragments.main
 import android.app.Application
 import android.support.v4.media.MediaBrowserCompat
 import android.support.v4.media.MediaMetadataCompat
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.ViewModel
+import androidx.lifecycle.*
 import com.example.learning_android_music_app_kulakov.R
-import com.example.learning_android_music_app_kulakov.exoplayer.MusicServiceConnection
-import com.example.learning_android_music_app_kulakov.exoplayer.isPlayEnabled
-import com.example.learning_android_music_app_kulakov.exoplayer.isPlaying
-import com.example.learning_android_music_app_kulakov.exoplayer.isPrepared
+import com.example.learning_android_music_app_kulakov.exoplayer.*
 import com.example.learning_android_music_app_kulakov.models.Song
 import com.example.learning_android_music_app_kulakov.other.Constants.MEDIA_ROOT_ID
 import com.example.learning_android_music_app_kulakov.other.Resource
@@ -49,6 +44,7 @@ class MainVM(
                         it.description.subtitle.toString(),
                         it.description.mediaUri.toString(),
                         it.description.iconUri.toString(),
+                        it.description.extras?.getLong(MediaMetadataCompat.METADATA_KEY_DURATION) ?: 0L
                     )
                 }
                 initialMediaList = items

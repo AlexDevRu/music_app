@@ -10,6 +10,7 @@ import android.support.v4.media.MediaDescriptionCompat
 import android.support.v4.media.MediaMetadataCompat
 import android.support.v4.media.MediaMetadataCompat.*
 import androidx.core.net.toUri
+import androidx.core.os.bundleOf
 import com.example.learning_android_music_app_kulakov.exoplayer.State.*
 import com.example.learning_android_music_app_kulakov.models.Song
 import com.google.android.exoplayer2.MediaItem
@@ -88,6 +89,7 @@ class MusicSource(
                 .putString(METADATA_KEY_ALBUM_ART_URI, song.imageUrl)
                 .putString(METADATA_KEY_DISPLAY_SUBTITLE, song.subtitle)
                 .putString(METADATA_KEY_DISPLAY_DESCRIPTION, song.subtitle)
+                .putLong(METADATA_KEY_DURATION, song.duration)
                 .build()
         }
 
@@ -111,6 +113,9 @@ class MusicSource(
             .setSubtitle(song.description.subtitle)
             .setMediaId(song.description.mediaId)
             .setIconUri(song.description.iconUri)
+            .setExtras(bundleOf(
+                METADATA_KEY_DURATION to song.getLong(METADATA_KEY_DURATION)
+            ))
             .build()
         MediaBrowserCompat.MediaItem(desc, FLAG_PLAYABLE)
     }.toMutableList()
@@ -132,12 +137,12 @@ class MusicSource(
         }
 
     fun whenReady(action: (Boolean) -> Unit): Boolean {
-        if(state == STATE_CREATED || state == STATE_INITIALIZING) {
+        return if(state == STATE_CREATED || state == STATE_INITIALIZING) {
             onReadyListeners += action
-            return false
+            false
         } else {
             action(state == STATE_INITIALIZED)
-            return true
+            true
         }
     }
 }
