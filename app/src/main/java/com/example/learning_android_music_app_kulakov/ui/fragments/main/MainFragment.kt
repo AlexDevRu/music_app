@@ -142,12 +142,6 @@ class MainFragment: BaseFragment<FragmentMainBinding>(FragmentMainBinding::infla
                 showSnackBar(it.getContentIfNotHandled()?.message.orEmpty())
         }
 
-        songVM.curSongDuration.observe(viewLifecycleOwner) {
-            Timber.w("curSongDuration changed $it")
-            musicAdapter.updateCurrentMediaDuration(it)
-            musicAdapter.updateCurrentMediaProgress(songVM.curPlayerPosition.value ?: 0L)
-        }
-
         songVM.curPlayerPosition.observe(viewLifecycleOwner) {
             Timber.w("curPlayerPosition changed $it")
             musicAdapter.updateCurrentMediaProgress(it)
